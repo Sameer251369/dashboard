@@ -3,9 +3,27 @@ from flask_cors import CORS
 from datetime import datetime
 import json
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Get environment configuration
+FLASK_ENV = os.getenv('FLASK_ENV', 'development')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:5000').split(',')
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
-CORS(app)
+
+# Configure CORS for different deployment environments
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ALLOWED_ORIGINS,
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"],
+        "max_age": 3600
+    }
+})
 
 # ─── KPI Data ─────────────────────────────────────────────────────────────
 kpis = [
