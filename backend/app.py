@@ -11,19 +11,24 @@ load_dotenv()
 # Get environment configuration
 FLASK_ENV = os.getenv('FLASK_ENV', 'development')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:5000').split(',')
+ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', '*')  # Allow all for development
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
 
-# Configure CORS for different deployment environments
-CORS(app, resources={
-    r"/api/*": {
-        "origins": ALLOWED_ORIGINS,
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"],
-        "max_age": 3600
-    }
-})
+# Configure CORS - more permissive for local development
+if FLASK_ENV == 'development':
+    CORS(app)  # Allow all origins in development
+else:
+    # Production: restrict to specific origins
+    allowed_origins = ALLOWED_ORIGINS if isinstance(ALLOWED_ORIGINS, list) else ALLOWED_ORIGINS.split(',')
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": allowed_origins,
+            "methods": ["GET", "POST", "OPTIONS"],
+            "allow_headers": ["Content-Type"],
+            "max_age": 3600
+        }
+    })
 
 # ─── KPI Data ─────────────────────────────────────────────────────────────
 kpis = [
