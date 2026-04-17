@@ -1,6 +1,23 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Dynamic API URL based on environment
+const getAPIURL = () => {
+  // Check for Vite environment variable
+  const viteUrl = import.meta.env.VITE_API_URL;
+  if (viteUrl) return viteUrl;
+  
+  // For production builds, use relative path (same domain)
+  if (process.env.NODE_ENV === 'production') {
+    return '/api';
+  }
+  
+  // For development, use localhost
+  return 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getAPIURL();
+
+console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,

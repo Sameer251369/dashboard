@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: mba-dashboard
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.11
+    startCommand: cd backend && gunicorn app:app
+    build:
+      builder: nixpacks
+
+  - type: static
+    name: dashboard-frontend
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    publishPath: frontend/dist
